@@ -5,7 +5,7 @@ let matches = books
 
 //Implement Abstraction
 // create Object for books , author and genre
-
+// should the need for more data to be added statically be necessary
 class Author {
     constructor(id, name) {
         this.id = id;
@@ -30,14 +30,14 @@ class Book {
        this.image = image,
        this.published = published,
        this.description =description;
-    }
+    }//'this' refers to the specific instance
 displayBookInfo(){
     console.log(`${this.title} by ${this.author}, published in ${this.published}`);
     return `${this.title} by ${this.author}, published in ${this.published}`;
     
     }
 }
- //create a function for the books rendered
+ //create a function for the books that are rendered
  // need to create objects for abstractions
 
  function renderBookList(bookList, container) {
@@ -62,51 +62,48 @@ renderBookList(matches.slice(0, BOOKS_PER_PAGE), document.querySelector('[data-l
 //Calls the function , matches refers to the data that houses the books 
 // in the container the input received from the user will fill the parameter to compare with the existing data/books
 
-const genreHtml = document.createDocumentFragment()
-const firstGenreElement = document.createElement('option')
-firstGenreElement.value = 'any'
-firstGenreElement.innerText = 'All Genres'
-genreHtml.appendChild(firstGenreElement)
 
-for (const [id, name] of Object.entries(genres)) {
-    const element = document.createElement('option')
-    element.value = id
-    element.innerText = name
-    genreHtml.appendChild(element)
+//Function for the selected Options placed in a function
+function renderSelectOptions(data, container, defaultOptionText) {
+    const fragment = document.createDocumentFragment();
+    const defaultOption = document.createElement('option');
+    defaultOption.value = 'any';
+    defaultOption.innerText = defaultOptionText;
+    fragment.appendChild(defaultOption);
+
+    for (const [id, name] of Object.entries(data)) {
+        const option = document.createElement('option');
+        option.value = id;
+        option.innerText = name;
+        fragment.appendChild(option);
+    }
+    container.appendChild(fragment);
 }
 
-document.querySelector('[data-search-genres]').appendChild(genreHtml)
+renderSelectOptions(genres, document.querySelector('[data-search-genres]'), 'All Genres');
+// called the function
+renderSelectOptions(authors, document.querySelector('[data-search-authors]'), 'All Authors');
 
-const authorsHtml = document.createDocumentFragment()
-const firstAuthorElement = document.createElement('option')
-firstAuthorElement.value = 'any'
-firstAuthorElement.innerText = 'All Authors'
-authorsHtml.appendChild(firstAuthorElement)
 
-for (const [id, name] of Object.entries(authors)) {
-    const element = document.createElement('option')
-    element.value = id
-    element.innerText = name
-    authorsHtml.appendChild(element)
-}
-
-document.querySelector('[data-search-authors]').appendChild(authorsHtml)
-
-if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    document.querySelector('[data-settings-theme]').value = 'night'
-    document.documentElement.style.setProperty('--color-dark', '255, 255, 255');
-    document.documentElement.style.setProperty('--color-light', '10, 10, 20');
-} else {
-    document.querySelector('[data-settings-theme]').value = 'day'
-    document.documentElement.style.setProperty('--color-dark', '10, 10, 20');
-    document.documentElement.style.setProperty('--color-light', '255, 255, 255');
-}
+// this checks if the user has set their OS to prefer a dark theme
+//matches will return true if the user does , and false for notDarkThe
 
 document.querySelector('[data-list-button]').innerText = `Show more (${books.length - BOOKS_PER_PAGE})`
-document.querySelector('[data-list-button]').disabled = (matches.length - (page * BOOKS_PER_PAGE)) > 0
+document.querySelector('[data-list-button]').enabled = (matches.length - (page * BOOKS_PER_PAGE)) > 0
 
 document.querySelector('[data-list-button]').innerHTML = `
     <span>Show more</span>
+    <span class="list__remaining"> (${(matches.length - (page * BOOKS_PER_PAGE)) > 0 ? (matches.length - (page * BOOKS_PER_PAGE)) : 0})</span>
+`
+/*
+document.querySelector('[data-list-button]').innerText = `Show more (${books.length - BOOKS_PER_PAGE} )`
+document.querySelector('[data-list-button]').enabled = (matches.length - (page * BOOKS_PER_PAGE)) > 0*/
+//display the number of remaining items that can be shown, subtracts the total number of books to the number of books
+//already on display
+//Enabled the show more button
+
+document.querySelector('[data-list-button]').innerHTML = `
+    <span>Show more </span>
     <span class="list__remaining"> (${(matches.length - (page * BOOKS_PER_PAGE)) > 0 ? (matches.length - (page * BOOKS_PER_PAGE)) : 0})</span>
 `
 
@@ -147,7 +144,7 @@ document.querySelector('[data-settings-form]').addEventListener('submit', (event
     const formData = new FormData(event.target)
     const { theme } = Object.fromEntries(formData)
 
-    themeToggle(theme)
+    themeToggle(theme)// calls the theme function 
   
     document.querySelector('[data-settings-overlay]').open = false
 })
