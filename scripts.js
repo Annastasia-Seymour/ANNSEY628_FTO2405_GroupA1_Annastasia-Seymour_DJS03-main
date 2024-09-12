@@ -37,30 +37,30 @@ displayBookInfo(){
     
     }
 }
+ //create a function for the books rendered
+ // need to create objects for abstractions
 
-const starting = document.createDocumentFragment()
-// need to create objects for abstractions
-for (const { author, id, image, title } of matches.slice(0, BOOKS_PER_PAGE)) {
-    const element = document.createElement('button')
-    element.classList = 'preview'
-    element.setAttribute('data-preview', id)
-
-    element.innerHTML = `
-        <img
-            class="preview__image"
-            src="${image}"
-        />
-        
-        <div class="preview__info">
-            <h3 class="preview__title">${title}</h3>
-            <div class="preview__author">${authors[author]}</div>
-        </div>
-    `
-
-    starting.appendChild(element)
+ function renderBookList(bookList, container) {
+    const fragment = document.createDocumentFragment();
+    for (const { author, id, image, title } of bookList) {
+        const element = document.createElement('button');
+        element.classList = 'preview';
+        element.setAttribute('data-preview', id);
+        element.innerHTML = `
+            <img class="preview__image" src="${image}" />
+            <div class="preview__info">
+                <h3 class="preview__title">${title}</h3>
+                <div class="preview__author">${authors[author]}</div>
+            </div>
+        `;
+        fragment.appendChild(element);
+    }
+    container.appendChild(fragment);
 }
 
-document.querySelector('[data-list-items]').appendChild(starting)
+renderBookList(matches.slice(0, BOOKS_PER_PAGE), document.querySelector('[data-list-items]'));
+//Calls the function , matches refers to the data that houses the books 
+// in the container the input received from the user will fill the parameter to compare with the existing data/books
 
 const genreHtml = document.createDocumentFragment()
 const firstGenreElement = document.createElement('option')
