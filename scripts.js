@@ -154,23 +154,25 @@ function handleSearchFormSubmit(event) {
 function filterBooks(filters) {
     return books.filter((book) => {
         let genreMatch = filters.genre === 'any';
-
+//loops  through book array that matches the userInput
         for (const singleGenre of book.genres) {
             if (singleGenre === filters.genre) {
                 genreMatch = true;
                 break;
             }
         }
-
+//forces input and existing data to be presented in lowercase, validates input incase user typed in whatever case
         return (filters.title.trim() === '' || book.title.toLowerCase().includes(filters.title.toLowerCase())) &&
                (filters.author === 'any' || book.author === filters.author) &&
                genreMatch;
+               // if both conditions are met , a book or books will be returned
     });
 }
 
+//function updates the UI based on the filtered books
 function updateUIWithFilteredBooks(result) {
-    page = 1;
-    matches = result;
+    page = 1; // resets the page count to 1
+    matches = result; // stores the filtered books
 
     if (result.length < 1) {
         document.querySelector('[data-list-message]').classList.add('list__message_show');
@@ -178,17 +180,20 @@ function updateUIWithFilteredBooks(result) {
         document.querySelector('[data-list-message]').classList.remove('list__message_show');
     }
 
-    document.querySelector('[data-list-items]').innerHTML = '';
-    const newItems = createBookPreviews(result.slice(0, BOOKS_PER_PAGE));
+    document.querySelector('[data-list-items]').innerHTML = '';// Overwrites/Clears the existing list of books
+    const newItems = createBookPreviews(result.slice(0, BOOKS_PER_PAGE)); // calls function for the first page
     document.querySelector('[data-list-items]').appendChild(newItems);
-    updateShowMoreButton();
+    updateShowMoreButton();// every time the button is clicked it will call the function to update the state of the Show button,
+    // based on remaining books
 }
 
+// function creates and returns a document fragment containing book previews.
 function createBookPreviews(books) {
-    const fragment = document.createDocumentFragment();
+    const fragment = document.createDocumentFragment(); //created to hold the book preview elements
+    //using a fragment improves performance by avoiding multiple reflows and repaints in the DOM
     for (const { author, id, image, title } of books) {
-        const element = document.createElement('button');
-        element.classList = 'preview';
+        const element = document.createElement('button'); //creates button element
+        element.classList = 'preview'; // adds data attributes to store the books id
         element.setAttribute('data-preview', id);
         element.innerHTML = `
             <img class="preview__image" src="${image}" />
@@ -197,46 +202,55 @@ function createBookPreviews(books) {
                 <div class="preview__author">${authors[author]}</div>
             </div>
         `;
-        fragment.appendChild(element);
+        fragment.appendChild(element);// appends to the fragment
     }
-    return fragment;
+    return fragment;// returns to be inserted into DOM
 }
 
+
+// Function updates show button based on the number of remaining books
 function updateShowMoreButton() {
-    const remaining = matches.length - (page * BOOKS_PER_PAGE);
-    document.querySelector('[data-list-button]').disabled = remaining < 1;
+    const remaining = matches.length - (page * BOOKS_PER_PAGE); //calculates how many books are left to display
+    document.querySelector('[data-list-button]').disabled = remaining < 1;// disables button if there are no more books to display
     document.querySelector('[data-list-button]').innerHTML = `
         <span>Show more</span>
-        <span class="list__remaining"> (${remaining > 0 ? remaining : 0})</span>
-    `;
+        <span class="list__remaining"> (${remaining > 0 ? remaining : 0})</span> 
+    `;// updates the button text to show the remaining book count
 }
 
 document.querySelector('[data-search-form]').addEventListener('submit', handleSearchFormSubmit);
 
+//function loads and displays the next set of books when clicked
 function handleShowMoreButtonClick() {
     const newItems = createBookPreviews(matches.slice(page * BOOKS_PER_PAGE, (page + 1) * BOOKS_PER_PAGE));
+    //slice() returns the extracted part in a new string ,gets the next page of books from the matches array.
     document.querySelector('[data-list-items]').appendChild(newItems);
-    page += 1;
-    updateShowMoreButton();
+    page += 1;// increments the pages
+    updateShowMoreButton();//updates show count
 }
 
 document.querySelector('[data-list-button]').addEventListener('click', handleShowMoreButtonClick);
 
 //This block opens the modal with book details when a book is clicked.
+// function when a book is clicked, it opens the details preview modal with the selected book's information.
 function handleBookPreviewClick(event) {
-    const activeBook = findActiveBook(event);
+    const activeBook = findActiveBook(event);//Finds the book that was clicked.
+
+
     if (activeBook) {
         updateBookDetailsModal(activeBook);
         openModal('[data-list-active]');
     }
 }
 
+//function finds the clicked book by searching/verifying the event path.
 function findActiveBook(event) {
     const pathArray = Array.from(event.path || event.composedPath());
     let active = null;
 
     for (const node of pathArray) {
-        if (node?.dataset?.preview) {
+        if (node?.dataset?.preview) // Loops through the path to find the first element
+            {
             active = books.find(book => book.id === node.dataset.preview);
             break;
         }
@@ -245,6 +259,7 @@ function findActiveBook(event) {
     return active;
 }
 
+// function populates the modal with the selected book's image, title, author, and description.
 function updateBookDetailsModal(book) {
     document.querySelector('[data-list-blur]').src = book.image;
     document.querySelector('[data-list-image]').src = book.image;
@@ -255,6 +270,8 @@ function updateBookDetailsModal(book) {
 
 document.querySelector('[data-list-items]').addEventListener('click', handleBookPreviewClick);
 
+
+//Pretty self explanatory
 function openModal(selector) {
     document.querySelector(selector).open = true;
 }
