@@ -3,8 +3,43 @@ import { books, authors, genres, BOOKS_PER_PAGE } from './data.js'
 let page = 1;
 let matches = books
 
-const starting = document.createDocumentFragment()
+//Implement Abstraction
+// create Object for books , author and genre
 
+class Author {
+    constructor(id, name) {
+        this.id = id;
+        this.name = name;
+    }
+}
+
+class Genre {
+    constructor(id, name) {
+        this.id = id;
+        this.name = name;
+    }
+}
+
+
+class Book {
+    constructor(id, title, author, genres, image, published, description){ // assigns new values
+       this.id = id,
+       this.title = title,
+       this.author = author,
+       this.genre = genres,
+       this.image = image,
+       this.published = published,
+       this.description =description;
+    }
+displayBookInfo(){
+    console.log(`${this.title} by ${this.author}, published in ${this.published}`);
+    return `${this.title} by ${this.author}, published in ${this.published}`;
+    
+    }
+}
+
+const starting = document.createDocumentFragment()
+// need to create objects for abstractions
 for (const { author, id, image, title } of matches.slice(0, BOOKS_PER_PAGE)) {
     const element = document.createElement('button')
     element.classList = 'preview'
